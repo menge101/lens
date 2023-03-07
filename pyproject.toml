@@ -1,3 +1,5 @@
 [project]
-name = "lens"
+description = "Implementation of the lens functional pattern"
+name = "simplelens"
 version = "1.0.0"
+readme = "README.md"
