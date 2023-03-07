@@ -3,3 +3,7 @@
 .idea/*
 .orig
 /*venv/
+lens.egg-info
+lens-*.tar.gz
+.coverage
+/dist/
