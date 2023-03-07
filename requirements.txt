@@ -1,0 +1,7 @@
+build
+coverage
+mypy
+pylama
+pytest
+pytest-cov
+
