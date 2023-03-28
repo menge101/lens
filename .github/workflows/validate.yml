@@ -28,6 +28,9 @@ jobs:
     - name: Lint with pylama
       run: |
         pylama
+    - name: Mypy
+      run: |
+        mypy ./lens
     - name: Test with pytest
       run: |
         PYTHONPATH=$(pwd) pytest

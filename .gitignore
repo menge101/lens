@@ -6,4 +6,6 @@
 lens.egg-info
 lens-*.tar.gz
 .coverage
+coverage.xml
+/build/
 /dist/
