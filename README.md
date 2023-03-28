@@ -25,6 +25,10 @@ from the collection.
     #=> 3
 
 
+## Changelog
+  See changelog here: [Changelog.md](changelog.md)
+
+
 ## License
 
 Copyright 2023 Nathan Menge - nathan.menge@gmail.com

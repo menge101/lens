@@ -56,7 +56,7 @@ def lens(collection: Iterable,
         raise FocusingError(msg) from None
 
 
-def _reducer(acc, i: Union[Dict, int, str, Tuple], always_flatten: bool) -> Any:
+def _reducer(acc: Union[Mapping, Sequence], i: Union[int, str, Tuple], always_flatten: bool) -> Any:
     """
     This is the reducer function for the lens.
     :param acc: The collection to reduce
@@ -90,19 +90,20 @@ def _reducer(acc, i: Union[Dict, int, str, Tuple], always_flatten: bool) -> Any:
 
 
 @no_type_check
-def unpack_element(element: Union[Dict, int, str, Tuple]) -> Tuple[Union[str, int, None], Dict]:
-    try:
-        element, args = element  # type: ignore
-    except TypeError:
-        # A TypeError can be encountered when attempting to unpack an int
+def unpack_element(element: Union[int, str, Tuple[Union[int, str], Dict]]) -> Tuple[Union[str, int], Dict]:
+    if isinstance(element, str):
         return element, {}
-    except ValueError:
-        # If the element is a tuple, encountering this exception means the tuple has only one element
-        if isinstance(element, tuple):
-            return element[0], {}
-        # If the element isn't a tuple (which should only leave a string) return it with an accompanying None
+    if isinstance(element, int):
         return element, {}
-    return element, args
+    if isinstance(element, tuple):
+        try:
+            element, args = element  # type: ignore
+        except ValueError:
+            if len(element) < 2:
+                return element[0], {}
+            raise FocusingError(f"Unpacking a tuple: {element} that has more than 2 elements") from None
+        return element, args
+    raise ValueError(f"Element {element} is not a str, int, or tuple[2] and is not supported")
 
 
 def _flatten(tall_list: List[List]) -> List:
