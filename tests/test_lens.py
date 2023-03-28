@@ -1,4 +1,4 @@
-from lens.lens import FocusingError, lens, unpack_element
+from lens import lens
 from pytest import fixture, mark, raises
 
 
@@ -39,91 +39,102 @@ def list_structure_with_int_keys():
 
 
 def test_lens_simple(complex_data_struct):
-    assert lens(complex_data_struct, ['a']) == 'aye'
+    assert lens.lens(complex_data_struct, ['a']) == 'aye'
 
 
 def test_lens_failure(complex_data_struct):
-    with raises(FocusingError):
-        lens(complex_data_struct, ['not', 'going', 'to', 'work'])
+    with raises(lens.FocusingError):
+        lens.lens(complex_data_struct, ['not', 'going', 'to', 'work'])
 
 
 def test_lens_nested(complex_data_struct):
-    result = lens(complex_data_struct, ['nested_lists', 'letters'])
+    result = lens.lens(complex_data_struct, ['nested_lists', 'letters'])
     expected = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o']
     assert result == expected
 
 
 def test_lens_indexing(complex_data_struct):
-    result = lens(complex_data_struct, ['nested_lists', 0, 'letters'])
+    result = lens.lens(complex_data_struct, ['nested_lists', 0, 'letters'])
     expected = ['a', 'b', 'c']
     assert result == expected
 
 
 def test_lens_forced_mapping(list_structure_with_int_keys):
-    result = lens(list_structure_with_int_keys, [(0, {'force_map': True}), 0])
+    result = lens.lens(list_structure_with_int_keys, [(0, {'force_map': True}), 0])
     expected = 'zero'
     assert result == expected
 
 
 def test_lens_deeper_nested(complex_data_struct):
-    result = lens(complex_data_struct, ['deeper_nest', 'one', 'two', 'three'])
+    result = lens.lens(complex_data_struct, ['deeper_nest', 'one', 'two', 'three'])
     expected = ['123', '456', '789', '101', '112', '1314']
     assert result == expected
 
 
 def test_list_based_lens(list_based_struct):
-    result = lens(list_based_struct, ['one', 'two', 'three'])
+    result = lens.lens(list_based_struct, ['one', 'two', 'three'])
     expected = ['123', '456', '789', '101', '112', '1314']
     assert result == expected
 
 
 def test_list_based_lens_with_dbl_flatten(list_based_struct):
-    result = lens(list_based_struct, [('one', {'flatten': True}), ('two', {'flatten': True}), 'three'])
+    result = lens.lens(list_based_struct, [('one', {'flatten': True}), ('two', {'flatten': True}), 'three'])
     expected = ['123', '456', '789', '101', '112', '1314']
     assert result == expected
 
 
 def test_list_based_lens_without_flattening(list_based_struct):
-    result = lens(list_based_struct, ['one', 'two', 'three'], False)
+    result = lens.lens(list_based_struct, ['one', 'two', 'three'], False)
     expected = [[['123']], [['456']], [['789']], [['101']], [['112']], [['1314']]]
     assert result == expected
 
 
 def test_list_based_lens_with_flatten_on_one(list_based_struct):
-    result = lens(list_based_struct, [('one', {'flatten': True}), 'two', 'three'], False)
+    result = lens.lens(list_based_struct, [('one', {'flatten': True}), 'two', 'three'], False)
     expected = [['123'], ['456'], ['789'], ['101'], ['112'], ['1314']]
     assert result == expected
 
 
 def test_list_based_lens_with_flatten_on_two(list_based_struct):
-    result = lens(list_based_struct, ['one', ('two', {'flatten': True}), 'three'], False)
+    result = lens.lens(list_based_struct, ['one', ('two', {'flatten': True}), 'three'], False)
     expected = [['123'], ['456'], ['789'], ['101'], ['112'], ['1314']]
     assert result == expected
 
 
 def test_list_based_lens_with_flatten_on_three(list_based_struct):
-    result = lens(list_based_struct, ['one', 'two', ('three', {'flatten': True})], False)
+    result = lens.lens(list_based_struct, ['one', 'two', ('three', {'flatten': True})], False)
     expected = [['123'], ['456'], ['789'], ['101'], ['112'], ['1314']]
     assert result == expected
 
 
 def test_list_based_lens_with_trpl_flatten(list_based_struct):
-    result = lens(list_based_struct, ['one', 'two', 'three'])
+    result = lens.lens(list_based_struct, ['one', 'two', 'three'])
     expected = ['123', '456', '789', '101', '112', '1314']
     assert result == expected
 
 
 def test_lens_with_objects(structure_with_objects):
-    result = lens(structure_with_objects, ['object', 'yolo', 'word'])
+    result = lens.lens(structure_with_objects, ['object', 'yolo', 'word'])
     expected = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight']
     assert result == expected
 
 
 def test_lens_with_too_deep_key_chain(structure_with_objects):
-    with raises(FocusingError):
-        lens(structure_with_objects, ['object', 'yolo', 'word', 'more', 'i', 'want', 'more'])
+    with raises(lens.FocusingError):
+        lens.lens(structure_with_objects, ['object', 'yolo', 'word', 'more', 'i', 'want', 'more'])
 
 
-@mark.parametrize('value,result', [(3, (3, {})), ('a', ('a', {})), (('yolo', {}), ('yolo', {})), (('a',), ('a', {}))])
+@mark.parametrize('value,result', [(3, (3, {})), ('a', ('a', {})), (('yolo', {}), ('yolo', {})), (('a',), ('a', {})),
+                                   ('id', ('id', {}))])
 def test_unpack_element(result, value):
-    assert unpack_element(value) == result
+    assert lens.unpack_element(value) == result
+
+
+def test_unpack_element_dict():
+    with raises(ValueError):
+        lens.unpack_element({'a': 'aye'})
+
+
+def test_unpack_element_oversized_tuple():
+    with raises(lens.FocusingError):
+        lens.unpack_element(('yolo', 3, 2))
