@@ -1,4 +1,4 @@
-# Lens
+# Lens v1.1.0
 
 ## Purpose
 
@@ -15,13 +15,13 @@ The purpose of this project is to implement the "Lens" functional pattern in Pyt
 
 ## Usage
 Install the package from PyPi via pip install
-`from lens import lens`
+`from lens import focus`
 
 The lens function expects a collection of some form, as well as a list of keys and/or indexes to use to extract data 
 from the collection.
 
     collection = {'a': {'b': [{'a': 1}, {'b': 2}, {'c': 3}]
-    lens(collection, ['a', 'b', 2, 'c'])
+    focus(collection, ['a', 'b', 2, 'c'])
     #=> 3
 
 
@@ -31,7 +31,7 @@ from the collection.
 
 ## License
 
-Copyright 2023 Nathan Menge - nathan.menge@gmail.com
+Copyright 2024 Nathan Menge - nathan.menge@gmail.com
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
 documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
