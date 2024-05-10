@@ -16,13 +16,13 @@
 # This module is included as it is useful to this project and I wasn't ready to open source it, but hopefully I will do
 # that soon.  At which point I will remove this and pull it as a dependency through pip.
 
-from collections.abc import Iterable, Mapping, Sequence
+from collections.abc import Iterable, Mapping
 from functools import partial, reduce
-from typing import Any, cast, Dict, List, no_type_check, Optional, Tuple, Union
+from typing import Any, cast, Optional, Sequence
 
 
 def lens(collection: Iterable,
-         keys: List[Union[int, str, Tuple[str, Dict]]],
+         keys: Sequence,
          always_flatten: Optional[bool] = None) -> Any:
     """
     This function implements the "lens" functional pattern that is used to extract data from within complex
@@ -33,7 +33,7 @@ def lens(collection: Iterable,
     :param collection: The collection to extract data from
     :type collection: Iterable
     :param keys: Keys used for extraction
-    :type keys: List[Union[int, str, Tuple[int, str, Dict]]
+    :type keys: List[Union[int, str, tuple[int, str, dict]]
     :param always_flatten: Flag to set flattening behavior across the entire function call
     :type always_flatten: bool
     :return: Returns data found within the data structure
@@ -47,6 +47,8 @@ def lens(collection: Iterable,
     except AttributeError as ae:
         msg = f"{ae}.\nAttempting to focus lens across key set {keys}"
         raise FocusingError(msg) from None
+    except IndexError:
+        raise FocusingError(f"Collection emptied while attempting to focus across key set: {keys}") from None
     except KeyError as ke:
         collection = cast(Mapping, collection)
         collection_key_list = list(collection.keys())
@@ -56,14 +58,14 @@ def lens(collection: Iterable,
         raise FocusingError(msg) from None
 
 
-def _reducer(acc: Union[Mapping, Sequence], i: Union[int, str, Tuple], always_flatten: bool) -> Any:
+def _reducer(acc: Mapping | Sequence, i: int | str | tuple, always_flatten: bool) -> Any:
     """
     This is the reducer function for the lens.
     :param acc: The collection to reduce
     :type acc: Any
     :param i: The key to reduce the collection by, which in this case is to pull a value from the collection
     based on this value
-    :type i: Union[Dict, int, str, Tuple]
+    :type i: Union[dict, int, str, tuple]
     :return: Returns the focused result set, which can be almost anything
     :rtype: Any
     """
@@ -71,7 +73,7 @@ def _reducer(acc: Union[Mapping, Sequence], i: Union[int, str, Tuple], always_fl
     force_map = args.get('force_map', False)
     flatten = force_map or args.get('flatten', always_flatten)
     if isinstance(acc, Mapping):
-        # It is a Mapping which implies Dict-like behavior
+        # It is a Mapping which implies dict-like behavior
         return acc[j]
     if isinstance(acc, Sequence) and not isinstance(acc, str):
         # It is a Sequence, which implies List-like behavior, but we keep out strings, which are also list-like
@@ -89,24 +91,28 @@ def _reducer(acc: Union[Mapping, Sequence], i: Union[int, str, Tuple], always_fl
             raise AttributeError(f"Object with value '{acc}' has no attribute '{i}'") from None
 
 
-@no_type_check
-def unpack_element(element: Union[int, str, Tuple[Union[int, str], Dict]]) -> Tuple[Union[str, int], Dict]:
+def unpack_element(element: int | str | tuple[int | str, dict]) -> tuple[int | str, dict]:
     if isinstance(element, str):
         return element, {}
     if isinstance(element, int):
         return element, {}
     if isinstance(element, tuple):
-        try:
-            element, args = element  # type: ignore
-        except ValueError:
-            if len(element) < 2:
-                return element[0], {}
-            raise FocusingError(f"Unpacking a tuple: {element} that has more than 2 elements") from None
-        return element, args
+        return unpack_tuple(element)
     raise ValueError(f"Element {element} is not a str, int, or tuple[2] and is not supported")
 
 
-def _flatten(tall_list: List[List]) -> List:
+def unpack_tuple(element: tuple[int | str, dict]) -> tuple[int | str, dict]:
+    tuple_length = len(element)
+    if tuple_length == 2:
+        return element
+    if tuple_length == 1:
+        return element[0], {}
+    if tuple_length < 1:
+        raise ValueError('Element is an empty tuple')
+    raise ValueError(f"Unpacking a tuple: {element} that has more than 2 elements")
+
+
+def _flatten(tall_list: list[list]) -> list:
     """
     This method is used to flatten a single level of nested list.
     :param tall_list: List to flatten
@@ -123,5 +129,3 @@ def _flatten(tall_list: List[List]) -> List:
 
 class FocusingError(Exception):
     pass
-
-# pylama:ignore=C901

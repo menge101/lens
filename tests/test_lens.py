@@ -1,5 +1,7 @@
-from lens import lens
 from pytest import fixture, mark, raises
+
+
+from lens import lens
 
 
 @fixture
@@ -124,6 +126,21 @@ def test_lens_with_too_deep_key_chain(structure_with_objects):
         lens.lens(structure_with_objects, ['object', 'yolo', 'word', 'more', 'i', 'want', 'more'])
 
 
+def test_lens_empty_list():
+    with raises(lens.FocusingError):
+        lens.lens([], [0, 'something'])
+
+
+def test_lens_empty_dict():
+    with raises(lens.FocusingError):
+        lens.lens({}, ['a', 'something'])
+
+
+def test_lens_empty_tuple():
+    with raises(lens.FocusingError):
+        lens.lens(tuple(), [0, 'thing'])
+
+
 @mark.parametrize('value,result', [(3, (3, {})), ('a', ('a', {})), (('yolo', {}), ('yolo', {})), (('a',), ('a', {})),
                                    ('id', ('id', {}))])
 def test_unpack_element(result, value):
@@ -136,5 +153,10 @@ def test_unpack_element_dict():
 
 
 def test_unpack_element_oversized_tuple():
-    with raises(lens.FocusingError):
+    with raises(ValueError):
         lens.unpack_element(('yolo', 3, 2))
+
+
+def test_unpack_empty_tuple():
+    with raises(ValueError):
+        lens.unpack_element(tuple())
