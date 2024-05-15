@@ -1,4 +1,4 @@
-# Lens v1.1.0
+# Lens v1.1.1
 
 ## Purpose
 
@@ -14,14 +14,14 @@ The purpose of this project is to implement the "Lens" functional pattern in Pyt
     pip uninstall simplelens
 
 ## Usage
-Install the package from PyPi via pip install
-`from lens import focus`
+Install the package from PyPi via pip install  
+`import lens`
 
 The lens function expects a collection of some form, as well as a list of keys and/or indexes to use to extract data 
 from the collection.
 
     collection = {'a': {'b': [{'a': 1}, {'b': 2}, {'c': 3}]
-    focus(collection, ['a', 'b', 2, 'c'])
+    lens.focus(collection, ['a', 'b', 2, 'c'])
     #=> 3
 
 
