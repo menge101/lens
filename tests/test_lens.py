@@ -21,6 +21,20 @@ def list_based_struct():
 
 
 @fixture
+def tuple_based_struct(list_based_struct):
+    return tuple(list_based_struct)
+
+
+@fixture
+def tuple_based_struct_complex():
+    return ({'one': ({'two': {'three': 123}}, {'two': {'three': 456}})},
+            {'one': ({'two': {'three': 789}}, {'two': {'three': 123}})},
+            {'one': ({'two': {'three': 456}}, {'two': {'three': 789}})},
+            {'one': ({'two': {'three': 123}}, {'two': {'three': 456}})},
+            {'one': ({'two': {'three': 789}}, {'two': {'three': 123}})})
+
+
+@fixture
 def structure_with_objects():
     class Thing(object):
         pass
@@ -141,6 +155,16 @@ def test_lens_empty_tuple():
         lens.lens(tuple(), [0, 'thing'])
 
 
+def test_lens_top_level_list_error():
+    with raises(lens.FocusingError):
+        lens.lens([{'a': 'aye'}, {'b': 'bee'}], [0, 'c'])
+
+
+def test_lens_top_level_tuple_error():
+    with raises(lens.FocusingError):
+        lens.lens(({'a': 'aye'}, {'b': 'bee'}), [0, 'c'])
+
+
 @mark.parametrize('value,result', [(3, (3, {})), ('a', ('a', {})), (('yolo', {}), ('yolo', {})), (('a',), ('a', {})),
                                    ('id', ('id', {}))])
 def test_unpack_element(result, value):
@@ -160,3 +184,15 @@ def test_unpack_element_oversized_tuple():
 def test_unpack_empty_tuple():
     with raises(ValueError):
         lens.unpack_element(tuple())
+
+
+def test_top_level_tuple(tuple_based_struct):
+    observed_result = lens.lens(tuple_based_struct, ['one', 'two', 'three'])
+    expected_result = ['123', '456', '789', '101', '112', '1314']
+    assert observed_result == expected_result
+
+
+def test_top_level_tuple_complex(tuple_based_struct_complex):
+    observed_result = lens.lens(tuple_based_struct_complex, ['one', 'two', 'three'])
+    expected_result = [123, 456, 789, 123, 456, 789, 123, 456, 789, 123]
+    assert observed_result == expected_result

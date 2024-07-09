@@ -21,6 +21,18 @@ from functools import partial, reduce
 from typing import Any, cast, Optional, Sequence
 
 
+def focus(collection: Iterable,
+          keys: Sequence,
+          always_flatten: Optional[bool] = None,
+          default_result: Optional[Any] = None):
+    try:
+        return lens(collection=collection,
+                    keys=keys,
+                    always_flatten=always_flatten)
+    except FocusingError:
+        return default_result
+
+
 def lens(collection: Iterable,
          keys: Sequence,
          always_flatten: Optional[bool] = None) -> Any:
@@ -56,6 +68,10 @@ def lens(collection: Iterable,
         msg = (f"Could not find key {ke} in collection with keys '{joined_keys}'.\nAttempting to focus lens "
                f"across key set {keys}")
         raise FocusingError(msg) from None
+    except FocusingKeyError as fke:
+        msg = (f"{fke}\nAttempting to focus lens "
+               f"across key set {keys}")
+        raise FocusingError(msg) from None
 
 
 def _reducer(acc: Mapping | Sequence, i: int | str | tuple, always_flatten: bool) -> Any:
@@ -74,7 +90,14 @@ def _reducer(acc: Mapping | Sequence, i: int | str | tuple, always_flatten: bool
     flatten = force_map or args.get('flatten', always_flatten)
     if isinstance(acc, Mapping):
         # It is a Mapping which implies dict-like behavior
-        return acc[j]
+        try:
+            return acc[j]
+        except KeyError as ke:
+            collection = cast(Mapping, acc)
+            collection_key_list = list(collection.keys())
+            joined_keys = ', '.join(collection_key_list)
+            msg = f"Could not find key {ke} in sub-collection with keys '{joined_keys}'."
+            raise FocusingKeyError(msg) from None
     if isinstance(acc, Sequence) and not isinstance(acc, str):
         # It is a Sequence, which implies List-like behavior, but we keep out strings, which are also list-like
         if isinstance(j, int) and not force_map:
@@ -128,4 +151,8 @@ def _flatten(tall_list: list[list]) -> list:
 
 
 class FocusingError(Exception):
+    pass
+
+
+class FocusingKeyError(Exception):
     pass

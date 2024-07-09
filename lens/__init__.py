@@ -1,4 +1,4 @@
-from .lens import FocusingError, lens as focus
+from .lens import focus, FocusingError
 
 
 __all__ = ['focus', 'FocusingError']
