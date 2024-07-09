@@ -61,13 +61,6 @@ def lens(collection: Iterable,
         raise FocusingError(msg) from None
     except IndexError:
         raise FocusingError(f"Collection emptied while attempting to focus across key set: {keys}") from None
-    except KeyError as ke:
-        collection = cast(Mapping, collection)
-        collection_key_list = list(collection.keys())
-        joined_keys = ', '.join(collection_key_list)
-        msg = (f"Could not find key {ke} in collection with keys '{joined_keys}'.\nAttempting to focus lens "
-               f"across key set {keys}")
-        raise FocusingError(msg) from None
     except FocusingKeyError as fke:
         msg = (f"{fke}\nAttempting to focus lens "
                f"across key set {keys}")
