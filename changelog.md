@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.1.4
+## 1.1.5
 - Fixed default value to raise FocusingError if default is None
 
 ## 1.1.3
