@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.1.4
+- Fixed default value to raise FocusingError if default is None
+
 ## 1.1.3
 - Fixed code coverage and added failure to pytest CI job if code coverage is not 100%
 - Brought changelog up to date

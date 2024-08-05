@@ -30,7 +30,9 @@ def focus(collection: Iterable,
                     keys=keys,
                     always_flatten=always_flatten)
     except FocusingError:
-        return default_result
+        if default_result is not None:
+            return default_result
+        raise
 
 
 def lens(collection: Iterable,
