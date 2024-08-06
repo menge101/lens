@@ -1,7 +1,13 @@
 # Changelog
 
+## 1.1.6
+- Implemented multi-focus function which performs multiple focus operations and returns a tuple of results
+
 ## 1.1.5
 - Fixed default value to raise FocusingError if default is None
+
+## 1.1.4
+- Pypi mistake resulting in a dead version
 
 ## 1.1.3
 - Fixed code coverage and added failure to pytest CI job if code coverage is not 100%
