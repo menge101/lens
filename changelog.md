@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.1.7
+- Fixed tpying on mutli_focus to use varadic tuples.
+
 ## 1.1.6
 - Implemented multi-focus function which performs multiple focus operations and returns a tuple of results
 
