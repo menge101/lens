@@ -70,9 +70,9 @@ def lens(collection: Iterable,
 
 
 def multi_focus(collection: Iterable,
-                keys: Sequence[Sequence],
+                keys: tuple[Sequence, ...],
                 always_flatten: Optional[bool] = None,
-                default_result: Optional[Any] = None) -> tuple[Any]:
+                default_result: Optional[Any] = None) -> tuple[Any, ...]:
     return tuple(focus(collection, key_seq, always_flatten, default_result) for key_seq in keys)
 
 
