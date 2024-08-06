@@ -1,4 +1,4 @@
-# Lens 1.1.5
+# Lens 1.1.6
 
 ## Purpose
 
@@ -23,6 +23,12 @@ from the collection.
     collection = {'a': {'b': [{'a': 1}, {'b': 2}, {'c': 3}]
     lens.focus(collection, ['a', 'b', 2, 'c'])
     #=> 3
+
+Also a feature is returning a tuple of multiple key sequences.
+
+    collection = {'a': {'b': [{'a': 1}, {'b': 2}, {'c': 3}]
+    lens.multi_focus(collection, (['a', 'b', 2, 'c'], ['a', 'b', 0, 'a']))
+    #=> (3, 1)
 
 
 ## Changelog
