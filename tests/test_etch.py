@@ -20,7 +20,7 @@ def value():
 
 def test_etch_simple(collection_simple, value):
     keys = ["d"]
-    observed = etch.etch(deepcopy(collection_simple), keys, value)
+    observed = etch.carve(deepcopy(collection_simple), keys, value)
     collection = deepcopy(collection_simple)
     collection["d"] = value
     expected = collection
@@ -29,7 +29,7 @@ def test_etch_simple(collection_simple, value):
 
 def test_etch_less_keys_than_depth(collection_deep, value):
     keys = ["a", "b", "c"]
-    observed = etch.etch(collection_deep, keys, value)
+    observed = etch.carve(collection_deep, keys, value)
     expected = {"a": {"b": {"c": value}}}
     assert observed == expected
 
@@ -37,31 +37,31 @@ def test_etch_less_keys_than_depth(collection_deep, value):
 def test_etch_overwrite_into_array(collection_simple, value):
     expected = {"a": "aye", "b": "bee", "c": [value, "sea"]}
     keys = ["c", 0]
-    observed = etch.etch(collection_simple, keys, value)
+    observed = etch.carve(collection_simple, keys, value)
     assert observed == expected
 
 
 def test_etch_append_to_list(collection_simple, value):
     expected = {"a": "aye", "b": "bee", "c": ["see", "sea", value]}
     keys = ["c", 2]
-    observed = etch.etch(collection_simple, keys, value)
+    observed = etch.carve(collection_simple, keys, value)
     assert observed == expected
 
 
 def test_etch_non_integer_to_list(collection_simple, value):
     keys = ["c", "zz"]
     with raises(etch.EtchingError):
-        etch.etch(collection_simple, keys, value)
+        etch.carve(collection_simple, keys, value)
 
 
 def test_etch_too_high_index_to_list(collection_simple, value):
     keys = ["c", 99]
     with raises(etch.EtchingError):
-        etch.etch(collection_simple, keys, value)
+        etch.carve(collection_simple, keys, value)
 
 
 def test_etch_deep_to_dict(collection_simple, value):
     keys = ["a", "b", "c", "d", "d"]
-    observed = etch.etch(deepcopy(collection_simple), keys, value)
+    observed = etch.carve(deepcopy(collection_simple), keys, value)
     expected = {"a": {"b": {"c": {"d": {"d": value}}}}, "b": "bee", "c": ["see", "sea"]}
     assert observed == expected

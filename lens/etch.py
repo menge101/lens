@@ -16,7 +16,7 @@
 # This module is included as it is useful to this project and I wasn't ready to open source it, but hopefully I will do
 # that soon.  At which point I will remove this and pull it as a dependency through pip.
 
-from lens import FocusingError
+from .lens import FocusingError
 from typing import Any, Hashable
 
 
@@ -28,7 +28,7 @@ class StepBackUp(ValueError):
     pass
 
 
-def etch(
+def carve(
     collection: dict | list,
     keys: list[Hashable],
     value: Any,

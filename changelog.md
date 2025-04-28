@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.2.1
+- Exposed etch function at the top of the package.
+
 ## 1.2.0
 - Implemented "etching", that is writing specific values into a location in a collection specified by a sequence of keys, essentially the opposite operation as 'focus'.
 
