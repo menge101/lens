@@ -8,3 +8,6 @@ requires-python = ">= 3.11"
 dependencies = [
     'build == 1.2.1'
 ]
+
+[tool.ruff]
+    line-length = 120
