@@ -1,4 +1,4 @@
-# Lens 1.2.0
+# Lens 1.2.1
 
 ## Purpose
 
