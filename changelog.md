@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.2.0
+- Implemented "etching", that is writing specific values into a location in a collection specified by a sequence of keys, essentially the opposite operation as 'focus'.
+
 ## 1.1.7
 - Fixed tpying on mutli_focus to use varadic tuples.
 

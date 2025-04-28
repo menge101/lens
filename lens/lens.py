@@ -21,23 +21,21 @@ from functools import partial, reduce
 from typing import Any, cast, Optional, Sequence
 
 
-def focus(collection: Iterable,
-          keys: Sequence,
-          always_flatten: Optional[bool] = None,
-          default_result: Optional[Any] = None) -> Any:
+def focus(
+    collection: Iterable,
+    keys: Sequence,
+    always_flatten: Optional[bool] = None,
+    default_result: Optional[Any] = None,
+) -> Any:
     try:
-        return lens(collection=collection,
-                    keys=keys,
-                    always_flatten=always_flatten)
+        return lens(collection=collection, keys=keys, always_flatten=always_flatten)
     except FocusingError:
         if default_result is not None:
             return default_result
         raise
 
 
-def lens(collection: Iterable,
-         keys: Sequence,
-         always_flatten: Optional[bool] = None) -> Any:
+def lens(collection: Iterable, keys: Sequence, always_flatten: Optional[bool] = None) -> Any:
     """
     This function implements the "lens" functional pattern that is used to extract data from within complex
     data structures.
@@ -64,59 +62,62 @@ def lens(collection: Iterable,
     except IndexError:
         raise FocusingError(f"Collection emptied while attempting to focus across key set: {keys}") from None
     except FocusingKeyError as fke:
-        msg = (f"{fke}\nAttempting to focus lens "
-               f"across key set {keys}")
+        msg = f"{fke}\nAttempting to focus lens across key set {keys}"
         raise FocusingError(msg) from None
 
 
-def multi_focus(collection: Iterable,
-                keys: tuple[Sequence, ...],
-                always_flatten: Optional[bool] = None,
-                default_result: Optional[Any] = None) -> tuple[Any, ...]:
+def multi_focus(
+    collection: Iterable,
+    keys: tuple[Sequence, ...],
+    always_flatten: Optional[bool] = None,
+    default_result: Optional[Any] = None,
+) -> tuple[Any, ...]:
     return tuple(focus(collection, key_seq, always_flatten, default_result) for key_seq in keys)
 
 
 def _reducer(acc: Mapping | Sequence, i: int | str | tuple, always_flatten: bool) -> Any:
-        """
-        This is the reducer function for the lens.
-        :param acc: The collection to reduce
-        :type acc: Any
-        :param i: The key to reduce the collection by, which in this case is to pull a value from the collection
-        based on this value
-        :type i: Union[dict, int, str, tuple]
-        :return: Returns the focused result set, which can be almost anything
-        :rtype: Any
-        """
-        j, args = unpack_element(i)
-        force_map = args.get('force_map', False)
-        flatten = force_map or args.get('flatten', always_flatten)
-        if isinstance(acc, Mapping):
-            # It is a Mapping which implies dict-like behavior
-            try:
-                return acc[j]
-            except KeyError as ke:
-                collection = cast(Mapping, acc)
-                collection_key_list = list(collection.keys())
-                joined_keys = ', '.join(collection_key_list)
-                msg = f"Could not find key {ke} in sub-collection with keys '{joined_keys}'."
-                raise FocusingKeyError(msg) from None
-        if isinstance(acc, Sequence) and not isinstance(acc, str):
-            # It is a Sequence, which implies List-like behavior, but we keep out strings, which are also list-like
-            if isinstance(j, int) and not force_map:
-                return acc[j]
-            mapped_list = list(map(lambda x: _reducer(x, j, always_flatten), acc))  # type: ignore
-            if flatten:
-                mapped_list = _flatten(mapped_list)
-            return mapped_list
-        else:
-            # It is neither a Mapping or Sequence, which only really leaves it as an attribute
-            try:
-                return getattr(acc, str(i))
-            except AttributeError:
-                raise AttributeError(f"Object with value '{acc}' has no attribute '{i}'") from None
+    """
+    This is the reducer function for the lens.
+    :param acc: The collection to reduce
+    :type acc: Any
+    :param i: The key to reduce the collection by, which in this case is to pull a value from the collection
+    based on this value
+    :type i: Union[dict, int, str, tuple]
+    :return: Returns the focused result set, which can be almost anything
+    :rtype: Any
+    """
+    j, args = unpack_element(i)
+    force_map = args.get("force_map", False)
+    flatten = force_map or args.get("flatten", always_flatten)
+    if isinstance(acc, Mapping):
+        # It is a Mapping which implies dict-like behavior
+        try:
+            return acc[j]
+        except KeyError as ke:
+            collection = cast(Mapping, acc)
+            collection_key_list = list(collection.keys())
+            joined_keys = ", ".join(collection_key_list)
+            msg = f"Could not find key {ke} in sub-collection with keys '{joined_keys}'."
+            raise FocusingKeyError(msg) from None
+    if isinstance(acc, Sequence) and not isinstance(acc, str):
+        # It is a Sequence, which implies List-like behavior, but we keep out strings, which are also list-like
+        if isinstance(j, int) and not force_map:
+            return acc[j]
+        mapped_list = list(map(lambda x: _reducer(x, j, always_flatten), acc))  # type: ignore
+        if flatten:
+            mapped_list = _flatten(mapped_list)
+        return mapped_list
+    else:
+        # It is neither a Mapping or Sequence, which only really leaves it as an attribute
+        try:
+            return getattr(acc, str(i))
+        except AttributeError:
+            raise AttributeError(f"Object with value '{acc}' has no attribute '{i}'") from None
 
 
-def unpack_element(element: int | str | tuple[int | str, dict]) -> tuple[int | str, dict]:
+def unpack_element(
+    element: int | str | tuple[int | str, dict],
+) -> tuple[int | str, dict]:
     if isinstance(element, str):
         return element, {}
     if isinstance(element, int):
@@ -133,7 +134,7 @@ def unpack_tuple(element: tuple[int | str, dict]) -> tuple[int | str, dict]:
     if tuple_length == 1:
         return element[0], {}
     if tuple_length < 1:
-        raise ValueError('Element is an empty tuple')
+        raise ValueError("Element is an empty tuple")
     raise ValueError(f"Unpacking a tuple: {element} that has more than 2 elements")
 
 
